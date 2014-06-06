@@ -221,7 +221,7 @@ schema_search_path: "public,hstore"
 ...
 ```
 
-This would be for a config with `default_schema` set to `public` and `persistent_schemas` set to `['hstore']`
+This would be for a config with `default_schema` set to `public` and `persistent_schemas` set to `['hstore']`. **Note**: This only works on Heroku with [Rails 4.1+](https://devcenter.heroku.com/changelog-items/427). For older Rails versions Heroku regenerates a completely different `database.yml` for each deploy and your predefined `schema_search_path` will be deleted. ActiveRecord's `schema_search_path` will be the default `\"$user\",public`.
 
 Another way that we've successfully configured hstore for our applications is to add it into the
 postgresql template1 database so that every tenant that gets created has it by default.
@@ -237,6 +237,18 @@ The *ideal* setup would actually be to install `hstore` into the `public` schema
 schema in the `search_path` at all times. We won't be able to do this though until public doesn't
 also contain the tenanted tables, which is an open issue with no real milestone to be completed.
 Happy to accept PR's on the matter.
+
+**Creating new schemas by using raw SQL dumps**
+Apartment can be forced to use raw SQL dumps insted of `schema.rb` for creating new schemas. Use this when you are using some extra features in postgres that can't be respresented in `schema.rb`, like materialized views etc.
+
+This only applies while using postgres adapter and `config.use_schemas` is set to `true`.
+(Note: this option doesn't use `db/structure.sql`, it creates SQL dump by executing `pg_dump`)
+
+Enable this option with:
+```ruby
+config.use_sql = true
+```
+
 
 ### Managing Migrations
 
